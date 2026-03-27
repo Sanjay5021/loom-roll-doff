@@ -1,10 +1,10 @@
 import pandas as pd
 import streamlit as st
 
-# 🌈 Page config (mobile friendly)
+#  Page config (mobile friendly)
 st.set_page_config(page_title="Loom Allocation", layout="centered")
 
-# 🎨 Custom CSS styling
+#  Custom CSS styling
 st.markdown("""
     <style>
     .main {
@@ -44,8 +44,8 @@ st.markdown("""
 # 🧵 Title
 st.markdown('<div class="title">🧵 Loom Allocation Data</div>', unsafe_allow_html=True)
 
-# 📂 File upload
-uploaded_file = st.file_uploader("📂 Upload Excel file", type=["xlsx"])
+#  File upload
+uploaded_file = st.file_uploader(" Upload Excel file", type=["xlsx"])
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
@@ -53,20 +53,21 @@ if uploaded_file:
     my = df[['LoomNo','loomAlcNo','DcoDate','LoomAlcItemcode',
              'BheemNo','LoomalcMtrs','Issue Qty','completedqty']]
 
-    # 🔍 Input
+    #  Input
     value = st.text_input("🔍 Enter LoomNo to filter")
 
     if value:
-        filtered_df = my[my['LoomNo'].astype(str) == value].sort_values(by='loomAlcNo',ascending=False)
+        filtered_df = my[my['LoomNo'].astype(str) == value].sort_values(by='loomAlcNo',ascending=False).reset_index()
 
+        filtered_df.index += 1
         codes = filtered_df['LoomAlcItemcode'].unique()[:2]
 
-        # 📊 Styled container
+        #  Styled container
         st.markdown("### 📊 Filtered Data")
         st.dataframe(filtered_df, use_container_width=True)
 
-        # 📋 Code output
-        st.markdown("### 📋 Item Codes (Copy)")
+        #  Code output
+        st.markdown("###  Item Codes (Copy)")
         for code in codes[:2]:
             st.code(code.strip())
     
