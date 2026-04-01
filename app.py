@@ -46,30 +46,90 @@ st.markdown('<div class="title">🧵 Loom Allocation Data</div>', unsafe_allow_h
 
 #  File upload
 uploaded_file = st.file_uploader(" Upload Excel file", type=["xlsx"])
+@st.cache_data
+def load_data(file):
+    return pd.read_excel(file)
+# Store file in session state
+if uploaded_file is not None:
+    st.session_state.uploaded_file = uploaded_file
 
-if uploaded_file:
-    df = pd.read_excel(uploaded_file)
+# Use stored file if available
+if "uploaded_file" in st.session_state:
+    df = load_data(st.session_state.uploaded_file)
 
     my = df[['LoomNo','loomAlcNo','DcoDate','LoomAlcItemcode',
              'BheemNo','LoomalcMtrs','Issue Qty','completedqty']]
 
     #  Input
-    value = st.text_input("🔍 Enter LoomNo to filter")
+    # Get unique LoomNos
+loom_list = sorted(my['LoomNo'].dropna().astype(int).unique())
+loom_list = [str(i) for i in loom_list]
+
+# Initialize session state
+if 'index' not in st.session_state:
+    st.session_state.index = 0
+
+if 'value' not in st.session_state:
+    st.session_state.value = loom_list[0]
+
+
+st.markdown("### 🔍 Enter LoomNo")
+
+col1, col2, col3 = st.columns([1,2,1])
+
+with col1:
+    if st.button("⬅️ Prev"):
+        if st.session_state.index > 0:
+            st.session_state.index -= 1
+            st.session_state.value = loom_list[st.session_state.index]
+
+with col3:
+    if st.button("Next ➡️"):
+        if st.session_state.index < len(loom_list) - 1:
+            st.session_state.index += 1
+            st.session_state.value = loom_list[st.session_state.index]
+
+# Text input (typing allowed)
+value = st.text_input("Type LoomNo", value=st.session_state.value)
+# Sync manual input with index
+if value in loom_list:
+    st.session_state.index = loom_list.index(value)
+    st.session_state.value = value
 
     if value:
         filtered_df = my[my['LoomNo'].astype(str) == value].sort_values(by='loomAlcNo',ascending=False).reset_index()
 
         filtered_df.index += 1
-        codes = filtered_df['LoomAlcItemcode'].unique()[:2]
-
+        
         #  Styled container
-        st.markdown("### 📊 Filtered Data")
-        st.dataframe(filtered_df, use_container_width=True)
+        #st.markdown("### 📊 Filtered Data")
+        #st.dataframe(filtered_df, use_container_width=True)
 
         #  Code output
-        st.markdown("###  Item Codes (Copy)")
-        for code in codes[:2]:
-            st.code(code.strip())
-    
+        # Add selection column
+st.markdown("### 📊 Filtered Data")
 
-        
+event = st.dataframe(
+    filtered_df,
+    use_container_width=True,
+    on_select="rerun",
+    selection_mode="single-row"
+)
+
+#st.markdown("### 📋 Selected Row Data (Copy)")
+
+if event.selection.rows:
+    row_index = event.selection.rows[0]
+    row = filtered_df.iloc[row_index]
+
+    loom_no = str(row["loomAlcNo"])
+    code = str(row["LoomAlcItemcode"]).strip()
+
+    st.markdown("#### 🧵 Loom Allocation No")
+    st.code(loom_no)
+
+    st.markdown("#### 🏷️ Item Code")
+    st.code(code)
+
+else:
+    st.info("Tap a row to copy data")
