@@ -59,7 +59,7 @@ if "uploaded_file" in st.session_state:
 
     my = df[['LoomNo','loomAlcNo','DcoDate','LoomAlcItemcode',
              'BheemNo','LoomalcMtrs','Issue Qty','completedqty']]
-    my['DcoDate'] = pd.to_datetime(my['DcoDate'])
+    my['DcoDate'] = pd.to_datetime(my['DcoDate']).dt.date
 
     #  Input
     # Get unique LoomNos
