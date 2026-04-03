@@ -97,7 +97,7 @@ if value in loom_list:
     st.session_state.value = value
 
     if value:
-        filtered_df = my[my['LoomNo'].astype(str) == value].sort_values(by='loomAlcNo',ascending=False).reset_index()
+        filtered_df = my[my['LoomNo'].astype(str) == value].sort_values(by='DcoDate',ascending=False).reset_index()
 
         filtered_df.index += 1
         
