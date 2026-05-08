@@ -74,7 +74,7 @@ if 'value' not in st.session_state:
     st.session_state.value = loom_list[0]
 
 
-st.markdown("### 🔍 Enter LoomNo")
+st.markdown("### 🔍 pls Enter LoomNo")
 
 col1, col2, col3 = st.columns([1,2,1])
 
